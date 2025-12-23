@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+    PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+
+    <context id="MyContext" targetRuntime="MyBatis3">
+
+        <!-- JDBC -->
+        <jdbcConnection driverClass="org.postgresql.Driver"
+                        connectionURL="jdbc:postgresql://localhost:5432/wms"
+                        userId="postgres"
+                        password="postgres"/>
+
+        <!-- Entity -->
+        <javaModelGenerator
+            targetPackage="wms.model"
+            targetProject="C:/pleiades/2023-09/wms/wms/src/main/java">
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- Mapper XML -->
+        <sqlMapGenerator
+            targetPackage="mapper"
+            targetProject="C:/pleiades/2023-09/wms/wms/src/main/resources"/>
+
+        <!-- Mapper Interface -->
+        <javaClientGenerator
+            type="XMLMAPPER"
+            targetPackage="wms.mapper"
+            targetProject="C:/pleiades/2023-09/wms/wms/src/main/java"/>
+
+        <!-- tables -->
+        <table tableName="products" domainObjectName="Product"/>
+        <table tableName="stocks" domainObjectName="Stock"/>
+        <table tableName="receive" domainObjectName="Receive"/>
+        <table tableName="ship" domainObjectName="Ship"/>
+
+    </context>
+
+</generatorConfiguration>

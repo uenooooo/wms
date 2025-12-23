@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+// MBG実行時のみ使用する特別なライブラリ設定
+configurations {
+    mybatisGenerator
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+    runtimeOnly 'org.postgresql:postgresql'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // MBG本体とDBドライバをここに定義
+    mybatisGenerator 'org.mybatis.generator:mybatis-generator-core:1.4.2'
+    mybatisGenerator 'org.postgresql:postgresql'
+}
+
+// MBGを実行するためのカスタムタスク
+task mbGenerator {
+    doLast {
+        // プロジェクトルートからの絶対パスを取得
+        def configFile = file('src/main/resources/generatorConfig.xml')
+        
+        println "Using config file: ${configFile.absolutePath}"
+        
+        if (!configFile.exists()) {
+            throw new GradleException("File not found at: ${configFile.absolutePath}")
+        }
+
+        ant.taskdef(
+            name: 'mbgenerator',
+            classname: 'org.mybatis.generator.ant.GeneratorAntTask',
+            classpath: configurations.mybatisGenerator.asPath
+        )
+        ant.mbgenerator(
+            overwrite: true,
+            configFile: configFile.absolutePath, // 絶対パスを渡す
+            verbose: true
+        )
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
