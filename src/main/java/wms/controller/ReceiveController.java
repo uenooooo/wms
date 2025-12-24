@@ -17,6 +17,11 @@ public class ReceiveController {
         this.receiveService = receiveService;
     }
 
+    @GetMapping
+    public String show() {
+        return "receive";
+    }
+    
     @PostMapping
     public String receive(
             @RequestParam("productCd") String productCd,
