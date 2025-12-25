@@ -1,30 +1,32 @@
 {
-	"name": "Java 21 & Spring Boot (PostgreSQL)",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-	"workspaceFolder": "/workspace",
+    "name": "Java 21 & Spring Boot (PostgreSQL)",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    // "/workspace" から "/workspaces/${localWorkspaceFolderBasename}" に変更
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}", 
 
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"vscjava.vscode-java-pack",      // Java Extension Pack
-				"vscjava.vscode-spring-boot-dashboard", // Spring Boot管理
-				"vscjava.vscode-spring-initializr",
-				"vscjava.vscode-gradle",         // Gradleサポート
-				"mtakada0.mybatis-xml-reloader", // MyBatis用
-				"ckolkman.vscode-postgresql"      // VS CodeからDB操作
-			],
-			"settings": {
-				"java.configuration.runtimes": [
-					{
-						"name": "JavaSE-21",
-						"path": "/usr/local/sdkman/candidates/java/current",
-						"default": true
-					}
-				]
-			}
-		}
-	},
-
-	"remoteUser": "vscode"
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "vscjava.vscode-java-pack",
+                "vscjava.vscode-spring-boot-dashboard",
+                "vscjava.vscode-spring-initializr",
+                "vscjava.vscode-gradle",
+                "mtakada0.mybatis-xml-reloader",
+                "ckolkman.vscode-postgresql"
+            ],
+            "settings": {
+                // Javaのパス設定がうまくいかない場合は、ここを一旦削除しても
+                // 公式イメージなら自動認識されます
+                "java.configuration.runtimes": [
+                    {
+                        "name": "JavaSE-21",
+                        "path": "/usr/local/sdkman/candidates/java/current",
+                        "default": true
+                    }
+                ]
+            }
+        }
+    },
+    "remoteUser": "vscode"
 }

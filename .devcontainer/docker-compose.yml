@@ -6,8 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ..:/workspace:cached
-    network_mode: service:db # アプリから localhost:5432 でDBに接続可能にする
+      - ..:/workspaces:cached # /workspace から /workspaces に修正
+    # network_mode を削除し、dbに依存させる
+    depends_on:
+      - db
+    # コンテナを落とさないための設定を追加
+    tty: true
+    stdin_open: true
 
   db:
     image: postgres:16
