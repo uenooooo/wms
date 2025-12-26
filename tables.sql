@@ -1,5 +1,5 @@
 -- 商品マスタ
-CREATE TABLE products (
+CREATE TABLE product (
   product_id BIGSERIAL PRIMARY KEY,
   product_cd VARCHAR(50) NOT NULL,
   product_name VARCHAR(200) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE products (
 );
 
 -- 在庫テーブル
-CREATE TABLE stocks (
+CREATE TABLE stock (
   stock_id BIGSERIAL PRIMARY KEY,
   product_id BIGINT NOT NULL,
   stock_qty INT NOT NULL DEFAULT 0,
