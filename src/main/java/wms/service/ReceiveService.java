@@ -40,7 +40,7 @@ public class ReceiveService {
 		Receive receiveData = new Receive();
 		receiveData.setProductId(productId);
 		receiveData.setQuantity(quantity);
-		receiveData.setCrePrg(ReceiveService.class.getName());
+		receiveData.setCrePrg(this.getClass().getName());
 		receiveMapper.insertSelective(receiveData);
 	}
 }

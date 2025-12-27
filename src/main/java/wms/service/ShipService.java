@@ -49,7 +49,7 @@ public class ShipService {
 		Ship shipData = new Ship();
 		shipData.setProductId(productId);
 		shipData.setQuantity(quantity);
-		shipData.setCrePrg(ShipService.class.getName());
+		shipData.setCrePrg(this.getClass().getName());
 		shipMapper.insertSelective(shipData);
 	}
 }
