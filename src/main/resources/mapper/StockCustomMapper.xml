@@ -14,29 +14,64 @@
         <result column="upd_time"     jdbcType="TIMESTAMP" property="updTime" />
     </resultMap>
     <sql id="Base_Column_List">
-        p.product_id,
-        s.stock_id,
-        p.product_cd,
-        p.product_name,
-        s.stock_qty,
-        p.price,
-        s.cre_time,
-        s.upd_time
+
     </sql>
     <select id="selectStockList" resultMap="BaseResultMap">
         SELECT
-            <include refid="Base_Column_List" />
-        FROM product p
-        INNER JOIN stock s
-            ON s.product_id = p.product_id
+            p.product_id, 
+            s.stock_id, 
+            p.product_cd, 
+            p.product_name, 
+            s.stock_qty, 
+            p.price, 
+            s.cre_time, 
+            s.upd_time 
+        FROM
+            product p 
+            INNER JOIN stock s 
+                ON s.product_id = p.product_id 
         ORDER BY
             p.product_cd
     </select>
+    <resultMap id="StockQtyResultMap" type="wms.dto.StockQtyDto">
+    <id column="product_id" property="productId"/>
+    <result column="stock_qty" property="stockQty"/>
+	</resultMap>
+	
+	<select id="selectStockQty" resultMap="StockQtyResultMap">
+        SELECT
+            product_id, 
+            stock_qty 
+        FROM
+            stock 
+        WHERE
+            product_id = #{productId,jdbcType=BIGINT}
+	</select>
+
 	<update id="increaseStockQty" parameterType="wms.model.Stock">
     UPDATE stock
     <set>
         <if test="stockQty != null">
             stock_qty = stock_qty + #{stockQty,jdbcType=INTEGER},
+        </if>
+        <if test="updPrg != null">
+            upd_prg = #{updPrg,jdbcType=VARCHAR},
+        </if>
+        <if test="updTime != null">
+            upd_time = #{updTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="remark != null">
+            remark = #{remark,jdbcType=VARCHAR},
+        </if>
+    </set>
+    WHERE product_id = #{productId,jdbcType=BIGINT}
+	</update>
+
+	<update id="decreaseStockQty" parameterType="wms.model.Stock">
+    UPDATE stock
+    <set>
+        <if test="stockQty != null">
+            stock_qty = stock_qty - #{stockQty,jdbcType=INTEGER},
         </if>
         <if test="updPrg != null">
             upd_prg = #{updPrg,jdbcType=VARCHAR},
