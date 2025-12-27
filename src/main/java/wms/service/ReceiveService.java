@@ -1,36 +1,39 @@
 package wms.service;
 
+import java.util.Date;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import wms.mapper.ReceiveMapper;
-import wms.model.Product;
+import wms.mapper.StockCustomMapper;
 import wms.model.Receive;
+import wms.model.Stock;
 
 @Service
 public class ReceiveService {
 
 	private final ReceiveMapper receiveMapper;
-	private final ProductService productService;
+	private final StockCustomMapper stockCustomMapper;
 
-	public ReceiveService(ReceiveMapper receiveMapper, ProductService productService) {
+	public ReceiveService(ReceiveMapper receiveMapper, StockCustomMapper stockCustomMapper) {
 		this.receiveMapper = receiveMapper;
-		this.productService = productService;
+		this.stockCustomMapper = stockCustomMapper;
 	}
 
 	@Transactional
-	public void receive(String productCd, int quantity) {
-		Long productId = getProductId(productCd);
+	public void receive(Long productId, int quantity) {
+		receiveStock(productId, quantity);
 		insertReceive(productId, quantity);
 	}
 
-	private long getProductId(String productCd) {
-		Product product = productService.findByProductCd(productCd);
-
-		if (product == null) {
-			throw new IllegalArgumentException("商品マスタに存在しません。productCd： " + productCd);
-		}
-		return product.getProductId();
+	private void receiveStock(Long productId, int quantity) {
+		Stock stockData = new Stock();
+		stockData.setProductId(productId);
+		stockData.setStockQty(quantity);
+		stockData.setUpdPrg(ReceiveService.class.getName());
+		stockData.setUpdTime(new Date());
+		stockCustomMapper.increaseStockQty(stockData);
 	}
 
 	private void insertReceive(Long productId, int quantity) {
