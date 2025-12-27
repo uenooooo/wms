@@ -28,7 +28,7 @@
 	<select id="selectByProductCd" resultMap="BaseResultMap">
 		SELECT
 		<include refid="Base_Column_List" />
-		FROM products
+		FROM product
 		WHERE product_cd = #{productCd}
 	</select>
 

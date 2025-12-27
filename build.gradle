@@ -37,28 +37,44 @@ dependencies {
     mybatisGenerator 'org.postgresql:postgresql'
 }
 
-// MBGを実行するためのカスタムタスク
 task mbGenerator {
     doLast {
-        // プロジェクトルートからの絶対パスを取得
-        def configFile = file('src/main/resources/generatorConfig.xml')
+        // 1. プロジェクトルートを確実に取得
+        def root = projectDir.absolutePath.replace('\\', '/')
         
-        println "Using config file: ${configFile.absolutePath}"
-        
-        if (!configFile.exists()) {
-            throw new GradleException("File not found at: ${configFile.absolutePath}")
-        }
+        // 2. 正しいパスを埋め込んだ設定ファイルの内容を定義
+        def configContent = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+    PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+    "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="MyContext" targetRuntime="MyBatis3">
+        <jdbcConnection driverClass="org.postgresql.Driver"
+                        connectionURL="jdbc:postgresql://localhost:5432/wms?currentSchema=public"
+                        userId="postgres" password="postgres" />
 
+        <javaModelGenerator targetPackage="wms.model" targetProject="${root}/src/main/java" />
+        <sqlMapGenerator targetPackage="mapper" targetProject="${root}/src/main/resources" />
+        <javaClientGenerator type="XMLMAPPER" targetPackage="wms.mapper" targetProject="${root}/src/main/java" />
+
+        <table schema="public" tableName="product" domainObjectName="Product" />
+        <table schema="public" tableName="stock" domainObjectName="Stock" />
+        <table schema="public" tableName="receive" domainObjectName="Receive" />
+        <table schema="public" tableName="ship" domainObjectName="Ship" />
+    </context>
+</generatorConfiguration>
+"""
+        // 3. 設定ファイルを書き出す
+        def configFile = file('src/main/resources/generatorConfig.xml')
+        configFile.text = configContent
+
+        // 4. 実行
         ant.taskdef(
             name: 'mbgenerator',
             classname: 'org.mybatis.generator.ant.GeneratorAntTask',
             classpath: configurations.mybatisGenerator.asPath
         )
-        ant.mbgenerator(
-            overwrite: true,
-            configFile: configFile.absolutePath, // 絶対パスを渡す
-            verbose: true
-        )
+        ant.mbgenerator(overwrite: true, configFile: configFile.absolutePath, verbose: true)
     }
 }
 
