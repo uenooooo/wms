@@ -3,7 +3,7 @@
 -- =====================================================
 CREATE TABLE product (
   product_id BIGSERIAL PRIMARY KEY,
-  product_cd VARCHAR(50) NOT NULL,
+  product_cd VARCHAR(50) NOT NULL UNIQUE,
   product_name VARCHAR(200) NOT NULL,
   price INT DEFAULT NULL,
   cre_prg VARCHAR(100) DEFAULT NULL,
