@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import wms.dto.StockListDto;
 import wms.mapper.StockCustomMapper;
+import wms.model.Stock;
 
 @Service
 @Transactional
@@ -26,5 +27,14 @@ public class StockService {
 			}
 		}
 		return list;
+	}
+	
+	public void insertStock(String productCd, String productName, int price) {
+		Stock stockData = new Stock();
+		stockData.setStockQty(0);
+		stockData.setStockName(productName);
+		stockData.setPrice(price);
+		stockData.setCrePrg(this.getClass().getName());
+		productMapper.insertSelective(stockData);
 	}
 }
