@@ -96,14 +96,15 @@
 				</div>
 			</div>
 
-			<!-- 商品マスタ登録フォーム -->
+			<!-- 商品マスタ登録 -->
 			<div class="product-form">
 				<h4>商品マスタ登録</h4>
-				<form id="productForm" method="post" th:action="@{/product/add}">
+				<form method="post" th:action="@{/product/add}">
 					<div>
 						商品コード
-						<input type="text" name="productCd" required pattern="^[\x20-\x7E]+$"
-							title="商品コードは半角文字のみで入力してください">
+						<input type="text" name="productCd" required
+							   pattern="^[\x20-\x7E]+$"
+							   title="商品コードは半角文字のみで入力してください">
 					</div>
 					<div>
 						商品名
@@ -117,6 +118,33 @@
 						<button type="submit">登録</button>
 					</div>
 				</form>
+			</div>
+
+			<!-- 商品マスタ編集 -->
+			<div class="product-form">
+				<h4>商品マスタ編集</h4>
+				<form method="post" th:action="@{/product/update}">
+					<input type="hidden" name="productId" id="editProductId">
+
+					<div>
+						商品コード
+						<input type="text" name="productCd" id="editProductCd" required>
+					</div>
+					<div>
+						商品名
+						<input type="text" name="productName" id="editProductName" required>
+					</div>
+					<div>
+						単価（円）
+						<input type="number" name="price" id="editPrice" min="0">
+					</div>
+					<div>
+						<button type="submit">更新</button>
+					</div>
+				</form>
+				<div style="margin-top:4px;font-size:12px;">
+					※ 一覧から商品を1件選択すると編集できます
+				</div>
 			</div>
 		</div>
 
@@ -136,7 +164,7 @@
 				</thead>
 				<tbody>
 					<tr th:each="row : ${stockList}" class="clickable"
-						th:onclick="|this.querySelector('input').click()|">
+						th:onclick="|selectProduct(this)|">
 						<td>
 							<input type="checkbox" name="productId" th:value="${row.productId}">
 						</td>
@@ -172,6 +200,34 @@
 				return null;
 			}
 			return checked[0];
+		}
+
+		function selectProduct(row) {
+			const checkbox = row.querySelector('input[name="productId"]');
+
+			// すでに選択中 → 解除
+			if (checkbox.checked) {
+				checkbox.checked = false;
+
+				// 編集フォームをクリア
+				document.getElementById('editProductId').value = '';
+				document.getElementById('editProductCd').value = '';
+				document.getElementById('editProductName').value = '';
+				document.getElementById('editPrice').value = '';
+				return;
+			}
+
+			// 他のチェックを解除
+			document.querySelectorAll('input[name="productId"]').forEach(c => c.checked = false);
+
+			// 選択
+			checkbox.checked = true;
+
+			// 編集フォームに反映
+			document.getElementById('editProductId').value = checkbox.value;
+			document.getElementById('editProductCd').value = row.cells[1].innerText;
+			document.getElementById('editProductName').value = row.cells[2].innerText;
+			document.getElementById('editPrice').value = row.cells[4].innerText;
 		}
 
 		function submitReceive() {
@@ -212,5 +268,4 @@
 	</script>
 
 </body>
-
 </html>
