@@ -17,6 +17,9 @@
 			border: 1px solid #ccc;
 			padding: 6px 8px;
 			text-align: left;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
 		th {
@@ -29,18 +32,32 @@
 
 		th.product-cd,
 		td.product-cd {
-			width: 150px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
+			width: 15%;
 		}
 
 		th.product-name,
 		td.product-name {
-			width: 360px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
+			width: 30%;
+		}
+
+		th.stockQty,
+		td.stockQty {
+			width: 7%;
+		}
+
+		th.price,
+		td.price {
+			width: 7%;
+		}
+
+		th.creTime,
+		td.creTime {
+			width: 17.5%;
+		}
+
+		th.updTime,
+		td.updTime {
+			width: 17.5%;
 		}
 
 		.title-area {
@@ -62,18 +79,6 @@
 			min-width: 260px;
 			border: 1px solid #ccc;
 			padding: 12px;
-		}
-
-		tr.clickable {
-			cursor: pointer;
-		}
-
-		tr.clickable:hover {
-			background-color: #f5f5f5;
-		}
-
-		tr.selected {
-			background-color: #dbeafe;
 		}
 
 		.input-area {
@@ -104,7 +109,6 @@
 			padding-top: 12px;
 		}
 
-		/* ★ 右下ボタン用 */
 		.form-footer {
 			margin-top: 12px;
 			display: flex;
@@ -116,6 +120,15 @@
 			font-weight: bold;
 			margin-bottom: 8px;
 		}
+
+		tr.selected {
+			background-color: #d0e7ff;
+		}
+
+		tr.clickable:hover {
+			background-color: #f0f8ff;
+			cursor: pointer;
+		}
 	</style>
 </head>
 
@@ -125,7 +138,10 @@
 
 	<div class="content-area">
 		<div class="action-area">
-
+			<h4 style="margin:1px 0 4px 0;">入荷・出荷</h4>
+			<div style="margin-bottom:16px; font-size:14px;">
+				※ 一覧の行をクリックして編集
+			</div>
 			<div class="input-area">
 				<div class="form-row">
 					<label>入荷数量</label>
@@ -144,6 +160,37 @@
 				<div class="form-footer">
 					<button type="button" onclick="submitShip()">出荷確定</button>
 				</div>
+			</div>
+
+			<!-- 商品マスタ編集 -->
+			<div class="product-form">
+				<h4 style="margin-bottom:4px;">商品マスタ編集</h4>
+				<div style="margin-bottom:16px; font-size:14px;">
+					※ 一覧の行をクリックして編集
+				</div>
+
+				<div th:if="${editErrorMessage}" class="error-message">
+					<p th:text="${editErrorMessage}"></p>
+				</div>
+
+				<form method="post" th:action="@{/product/edit}">
+					<input type="hidden" name="productId" id="editProductId">
+					<div class="form-row">
+						<label>商品コード</label>
+						<input type="text" name="productCd" id="editProductCd" required maxlength="50">
+					</div>
+					<div class="form-row">
+						<label>商品名</label>
+						<input type="text" name="productName" id="editProductName" required maxlength="200">
+					</div>
+					<div class="form-row">
+						<label>単価</label>
+						<input type="number" name="price" id="editPrice" min="0">
+					</div>
+					<div class="form-footer">
+						<button type="submit">更新</button>
+					</div>
+				</form>
 			</div>
 
 			<!-- 商品マスタ登録 -->
@@ -167,72 +214,36 @@
 						<label>単価</label>
 						<input type="number" name="price" min="0">
 					</div>
-
 					<div class="form-footer">
 						<button type="submit">登録</button>
 					</div>
 				</form>
 			</div>
-
-			<!-- 商品マスタ編集 -->
-			<div class="product-form">
-				<h4>商品マスタ編集</h4>
-
-				<div th:if="${editErrorMessage}" class="error-message">
-					<p th:text="${editErrorMessage}"></p>
-				</div>
-
-				<form method="post" th:action="@{/product/edit}">
-					<input type="hidden" name="productId" id="editProductId">
-
-					<div class="form-row">
-						<label>商品コード</label>
-						<input type="text" name="productCd" id="editProductCd" required maxlength="50">
-					</div>
-					<div class="form-row">
-						<label>商品名</label>
-						<input type="text" name="productName" id="editProductName" required maxlength="200">
-					</div>
-					<div class="form-row">
-						<label>単価</label>
-						<input type="number" name="price" id="editPrice" min="0">
-					</div>
-
-					<div class="form-footer">
-						<button type="submit">更新</button>
-					</div>
-				</form>
-
-				<div style="margin-top:4px;font-size:12px;">
-					※ 一覧の行をクリックすると編集できます
-				</div>
-			</div>
 		</div>
 
-		<!-- 一覧 -->
 		<div class="table-area">
 			<table>
 				<thead>
 					<tr>
-						<th class="product-cd">商品コード</th>
-						<th class="product-name">商品名</th>
-						<th>在庫数</th>
-						<th>単価</th>
-						<th>作成日時</th>
-						<th>更新日時</th>
+						<th class="product-cd" title="商品コード">商品コード</th>
+						<th class="product-name" title="商品名">商品名</th>
+						<th class="stockQty" title="在庫数">在庫数</th>
+						<th class="price" title="単価">単価</th>
+						<th class="creTime" title="作成日時">作成日時</th>
+						<th class="updTime" title="更新日時">更新日時</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="row : ${stockList}"
-						class="clickable"
-						th:data-product-id="${row.productId}"
+					<tr th:each="row : ${stockList}" class="clickable" th:data-product-id="${row.productId}"
 						onclick="selectProduct(this)">
-						<td class="product-cd" th:text="${row.productCd}"></td>
-						<td class="product-name" th:text="${row.productName}"></td>
-						<td class="num" th:text="${row.stockQty}"></td>
-						<td class="num" th:text="${row.price}"></td>
-						<td th:text="${#dates.format(row.creTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-						<td th:text="${#dates.format(row.updTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+						<td class="product-cd" th:text="${row.productCd}" th:title="${row.productCd}"></td>
+						<td class="product-name" th:text="${row.productName}" th:title="${row.productName}"></td>
+						<td class="num" th:text="${row.stockQty}" th:title="${row.stockQty}"></td>
+						<td class="num" th:text="${row.price}" th:title="${row.price}"></td>
+						<td th:text="${#dates.format(row.creTime, 'yyyy-MM-dd HH:mm:ss')}"
+							th:title="${#dates.format(row.creTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+						<td th:text="${#dates.format(row.updTime, 'yyyy-MM-dd HH:mm:ss')}"
+							th:title="${#dates.format(row.updTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
 					</tr>
 				</tbody>
 			</table>
@@ -253,8 +264,7 @@
 				return;
 			}
 
-			document.querySelectorAll('tr.selected')
-				.forEach(r => r.classList.remove('selected'));
+			document.querySelectorAll('tr.selected').forEach(r => r.classList.remove('selected'));
 
 			row.classList.add('selected');
 			selectedRow = row;
@@ -264,7 +274,79 @@
 			editProductName.value = row.cells[1].innerText;
 			editPrice.value = row.cells[3].innerText;
 		}
-	</script>
 
+		function getSelectedProductRow() {
+			if (!selectedRow) {
+				alert('商品を1件選択してください');
+				return null;
+			}
+			return selectedRow;
+		}
+
+		function submitReceive() {
+			const row = getSelectedProductRow();
+			if (!row) return;
+
+			const qty = parseInt(document.getElementById('receiveQty').value);
+			if (!qty || qty <= 0) {
+				alert('数量を入力してください');
+				return;
+			}
+
+			// フォーム送信処理（例）
+			const productId = row.dataset.productId;
+			const form = document.createElement('form');
+			form.method = 'post';
+			form.action = '/receive';
+			const inputId = document.createElement('input');
+			inputId.type = 'hidden';
+			inputId.name = 'productId';
+			inputId.value = productId;
+			form.appendChild(inputId);
+			const inputQty = document.createElement('input');
+			inputQty.type = 'hidden';
+			inputQty.name = 'quantity';
+			inputQty.value = qty;
+			form.appendChild(inputQty);
+			document.body.appendChild(form);
+			form.submit();
+		}
+
+		function submitShip() {
+			const row = getSelectedProductRow();
+			if (!row) return;
+
+			const qty = parseInt(document.getElementById('shipQty').value);
+			if (!qty || qty <= 0) {
+				alert('数量を入力してください');
+				return;
+			}
+
+			const stock = parseInt(row.querySelector('.num').innerText);
+			if (qty > stock) {
+				alert('在庫が足りません');
+				return;
+			}
+
+			// フォーム送信処理（例）
+			const productId = row.dataset.productId;
+			const form = document.createElement('form');
+			form.method = 'post';
+			form.action = '/ship';
+			const inputId = document.createElement('input');
+			inputId.type = 'hidden';
+			inputId.name = 'productId';
+			inputId.value = productId;
+			form.appendChild(inputId);
+			const inputQty = document.createElement('input');
+			inputQty.type = 'hidden';
+			inputQty.name = 'quantity';
+			inputQty.value = qty;
+			form.appendChild(inputQty);
+			document.body.appendChild(form);
+			form.submit();
+		}
+	</script>
 </body>
+
 </html>
