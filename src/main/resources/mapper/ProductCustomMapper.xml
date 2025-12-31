@@ -20,4 +20,14 @@
 			<if test="crePrg != null">#{crePrg},</if>
 		</trim>
 	</insert>
+	<select id="existsProductCdExcludingId" parameterType="map" resultType="boolean">
+	    SELECT EXISTS (
+	        SELECT 1
+	        FROM product
+	        WHERE product_cd = #{productCd}
+	        <if test="productId != null">
+	            AND product_id &lt;&gt; #{productId}
+	        </if>
+	    )
+	</select>
 </mapper>

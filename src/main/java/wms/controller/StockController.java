@@ -19,11 +19,8 @@ public class StockController {
 
 	@GetMapping
 	public String list(Model model) {
-
-		// 商品＋在庫の一覧を取得
 		model.addAttribute("stockList", stockService.findStockList());
 
-		// templates/stock.html を表示
 		return "stock";
 	}
 }

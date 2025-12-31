@@ -9,6 +9,7 @@
 		table {
 			border-collapse: collapse;
 			width: 100%;
+			table-layout: fixed;
 		}
 
 		th,
@@ -24,6 +25,22 @@
 
 		td.num {
 			text-align: right;
+		}
+
+		th.product-cd,
+		td.product-cd {
+			width: 150px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		th.product-name,
+		td.product-name {
+			width: 360px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
 		.title-area {
@@ -42,7 +59,7 @@
 		}
 
 		.action-area {
-			min-width: 200px;
+			min-width: 260px;
 			border: 1px solid #ccc;
 			padding: 12px;
 		}
@@ -55,12 +72,30 @@
 			background-color: #f5f5f5;
 		}
 
+		tr.selected {
+			background-color: #dbeafe;
+		}
+
 		.input-area {
 			margin-top: 12px;
 		}
 
-		.input-area div {
+		.form-row {
+			display: flex;
+			align-items: center;
 			margin-bottom: 8px;
+		}
+
+		.form-row label {
+			width: 80px;
+			text-align: right;
+			margin-right: 8px;
+			font-size: 13px;
+		}
+
+		.form-row input {
+			width: 140px;
+			box-sizing: border-box;
 		}
 
 		.product-form {
@@ -68,30 +103,45 @@
 			border-top: 1px solid #ccc;
 			padding-top: 12px;
 		}
+
+		/* ★ 右下ボタン用 */
+		.form-footer {
+			margin-top: 12px;
+			display: flex;
+			justify-content: flex-end;
+		}
+
+		.error-message {
+			color: red;
+			font-weight: bold;
+			margin-bottom: 8px;
+		}
 	</style>
 </head>
 
 <body>
 
-	<div class="title-area">
-		在庫一覧
-	</div>
+	<div class="title-area">在庫一覧</div>
 
 	<div class="content-area">
-		<!-- 操作 -->
 		<div class="action-area">
+
 			<div class="input-area">
-				<div>
-					入荷数量
+				<div class="form-row">
+					<label>入荷数量</label>
 					<input type="number" id="receiveQty" min="1">
+				</div>
+				<div class="form-footer">
 					<button type="button" onclick="submitReceive()">入荷確定</button>
 				</div>
 			</div>
 
 			<div class="input-area">
-				<div>
-					出荷数量
+				<div class="form-row">
+					<label>出荷数量</label>
 					<input type="number" id="shipQty" min="1">
+				</div>
+				<div class="form-footer">
 					<button type="button" onclick="submitShip()">出荷確定</button>
 				</div>
 			</div>
@@ -99,22 +149,26 @@
 			<!-- 商品マスタ登録 -->
 			<div class="product-form">
 				<h4>商品マスタ登録</h4>
+
+				<div th:if="${addErrorMessage}" class="error-message">
+					<p th:text="${addErrorMessage}"></p>
+				</div>
+
 				<form method="post" th:action="@{/product/add}">
-					<div>
-						商品コード
-						<input type="text" name="productCd" required
-							   pattern="^[\x20-\x7E]+$"
-							   title="商品コードは半角文字のみで入力してください">
+					<div class="form-row">
+						<label>商品コード</label>
+						<input type="text" name="productCd" required maxlength="50">
 					</div>
-					<div>
-						商品名
-						<input type="text" name="productName" required>
+					<div class="form-row">
+						<label>商品名</label>
+						<input type="text" name="productName" required maxlength="200">
 					</div>
-					<div>
-						単価（円）
+					<div class="form-row">
+						<label>単価</label>
 						<input type="number" name="price" min="0">
 					</div>
-					<div>
+
+					<div class="form-footer">
 						<button type="submit">登録</button>
 					</div>
 				</form>
@@ -123,27 +177,34 @@
 			<!-- 商品マスタ編集 -->
 			<div class="product-form">
 				<h4>商品マスタ編集</h4>
-				<form method="post" th:action="@{/product/update}">
+
+				<div th:if="${editErrorMessage}" class="error-message">
+					<p th:text="${editErrorMessage}"></p>
+				</div>
+
+				<form method="post" th:action="@{/product/edit}">
 					<input type="hidden" name="productId" id="editProductId">
 
-					<div>
-						商品コード
-						<input type="text" name="productCd" id="editProductCd" required>
+					<div class="form-row">
+						<label>商品コード</label>
+						<input type="text" name="productCd" id="editProductCd" required maxlength="50">
 					</div>
-					<div>
-						商品名
-						<input type="text" name="productName" id="editProductName" required>
+					<div class="form-row">
+						<label>商品名</label>
+						<input type="text" name="productName" id="editProductName" required maxlength="200">
 					</div>
-					<div>
-						単価（円）
+					<div class="form-row">
+						<label>単価</label>
 						<input type="number" name="price" id="editPrice" min="0">
 					</div>
-					<div>
+
+					<div class="form-footer">
 						<button type="submit">更新</button>
 					</div>
 				</form>
+
 				<div style="margin-top:4px;font-size:12px;">
-					※ 一覧から商品を1件選択すると編集できます
+					※ 一覧の行をクリックすると編集できます
 				</div>
 			</div>
 		</div>
@@ -153,9 +214,8 @@
 			<table>
 				<thead>
 					<tr>
-						<th></th>
-						<th>商品コード</th>
-						<th>商品名</th>
+						<th class="product-cd">商品コード</th>
+						<th class="product-name">商品名</th>
 						<th>在庫数</th>
 						<th>単価</th>
 						<th>作成日時</th>
@@ -163,13 +223,12 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="row : ${stockList}" class="clickable"
-						th:onclick="|selectProduct(this)|">
-						<td>
-							<input type="checkbox" name="productId" th:value="${row.productId}">
-						</td>
-						<td th:text="${row.productCd}"></td>
-						<td th:text="${row.productName}"></td>
+					<tr th:each="row : ${stockList}"
+						class="clickable"
+						th:data-product-id="${row.productId}"
+						onclick="selectProduct(this)">
+						<td class="product-cd" th:text="${row.productCd}"></td>
+						<td class="product-name" th:text="${row.productName}"></td>
 						<td class="num" th:text="${row.stockQty}"></td>
 						<td class="num" th:text="${row.price}"></td>
 						<td th:text="${#dates.format(row.creTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
@@ -180,90 +239,30 @@
 		</div>
 	</div>
 
-	<!-- 入荷フォーム -->
-	<form id="receiveForm" method="post" th:action="@{/receive}" style="display:none;">
-		<input type="hidden" name="productId" id="formProductId">
-		<input type="hidden" name="quantity" id="formQuantity">
-	</form>
-
-	<!-- 出荷フォーム -->
-	<form id="shipForm" method="post" th:action="@{/ship}" style="display:none;">
-		<input type="hidden" name="productId" id="formShipProductId">
-		<input type="hidden" name="quantity" id="formShipQuantity">
-	</form>
-
 	<script>
-		function getCheckedProduct() {
-			const checked = document.querySelectorAll('input[name="productId"]:checked');
-			if (checked.length !== 1) {
-				alert('商品を1件選択してください');
-				return null;
-			}
-			return checked[0];
-		}
+		let selectedRow = null;
 
 		function selectProduct(row) {
-			const checkbox = row.querySelector('input[name="productId"]');
-
-			// すでに選択中 → 解除
-			if (checkbox.checked) {
-				checkbox.checked = false;
-
-				// 編集フォームをクリア
-				document.getElementById('editProductId').value = '';
-				document.getElementById('editProductCd').value = '';
-				document.getElementById('editProductName').value = '';
-				document.getElementById('editPrice').value = '';
+			if (selectedRow === row) {
+				row.classList.remove('selected');
+				selectedRow = null;
+				editProductId.value = '';
+				editProductCd.value = '';
+				editProductName.value = '';
+				editPrice.value = '';
 				return;
 			}
 
-			// 他のチェックを解除
-			document.querySelectorAll('input[name="productId"]').forEach(c => c.checked = false);
+			document.querySelectorAll('tr.selected')
+				.forEach(r => r.classList.remove('selected'));
 
-			// 選択
-			checkbox.checked = true;
+			row.classList.add('selected');
+			selectedRow = row;
 
-			// 編集フォームに反映
-			document.getElementById('editProductId').value = checkbox.value;
-			document.getElementById('editProductCd').value = row.cells[1].innerText;
-			document.getElementById('editProductName').value = row.cells[2].innerText;
-			document.getElementById('editPrice').value = row.cells[4].innerText;
-		}
-
-		function submitReceive() {
-			const product = getCheckedProduct();
-			if (!product) return;
-
-			const qty = document.getElementById('receiveQty').value;
-			if (!qty || qty <= 0) {
-				alert('数量を入力してください');
-				return;
-			}
-
-			document.getElementById('formProductId').value = product.value;
-			document.getElementById('formQuantity').value = qty;
-			document.getElementById('receiveForm').submit();
-		}
-
-		function submitShip() {
-			const product = getCheckedProduct();
-			if (!product) return;
-
-			const qty = parseInt(document.getElementById('shipQty').value);
-			if (!qty || qty <= 0) {
-				alert('数量を入力してください');
-				return;
-			}
-
-			const stock = parseInt(product.closest('tr').querySelector('.num').innerText);
-			if (qty > stock) {
-				alert('在庫が足りません');
-				return;
-			}
-
-			document.getElementById('formShipProductId').value = product.value;
-			document.getElementById('formShipQuantity').value = qty;
-			document.getElementById('shipForm').submit();
+			editProductId.value = row.dataset.productId;
+			editProductCd.value = row.cells[0].innerText;
+			editProductName.value = row.cells[1].innerText;
+			editPrice.value = row.cells[3].innerText;
 		}
 	</script>
 
